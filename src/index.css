@@ -153,7 +153,7 @@ textarea { resize: vertical; }
 }
 
 .login-logo {
-  width: 160px;
+  width: 220px;
   height: auto;
   margin-bottom: 24px;
   position: relative;
@@ -275,7 +275,7 @@ textarea { resize: vertical; }
 }
 
 .cp-home-logo {
-  width: 100px;
+  width: 140px;
   height: auto;
   margin-bottom: 20px;
 }
@@ -400,7 +400,7 @@ textarea { resize: vertical; }
   padding: 24px 20px 20px;
   border-bottom: 3px solid var(--gold);
 }
-.cp-explore-logo { width: 80px; height: auto; margin-bottom: 8px; }
+.cp-explore-logo { width: 120px; height: auto; margin-bottom: 8px; }
 .cp-explore-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: .04em; color: #fff; }
 .cp-explore-sub { font-size: 12px; color: rgba(255,255,255,.4); margin-top: 2px; }
 
@@ -731,6 +731,30 @@ textarea { resize: vertical; }
 }
 .cp-btn-primary:disabled { opacity: .45; }
 .cp-btn-secondary { background: var(--surface); border: 1.5px solid var(--border-2); color: var(--text-2); border-radius: var(--r-md); padding: 13px 20px; font-size: 14px; font-weight: 600; letter-spacing: .04em; box-shadow: var(--shadow-sm); }
+
+/* ── QR Check-in ─────────────────────────────────────────────── */
+.cp-qr-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 0;
+}
+.cp-qr-box {
+  background: #fff;
+  border: 2px solid var(--border-2);
+  border-radius: var(--r-md);
+  padding: 10px;
+  flex-shrink: 0;
+}
+.cp-qr-info { flex: 1; }
+.cp-qr-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: .04em; color: var(--text); margin-bottom: 4px; }
+.cp-qr-sub { font-size: 12px; color: var(--text-2); line-height: 1.5; }
+.cp-qr-label { font-size: 9px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--gold-dark); margin-bottom: 6px; }
 
 /* ── Utility ─────────────────────────────────────────────────── */
 .cp-loading { display: flex; align-items: center; justify-content: center; padding: 60px 0; }

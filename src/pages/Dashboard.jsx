@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { QRCodeSVG } from 'qrcode.react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 
@@ -245,6 +246,29 @@ export default function Dashboard() {
             </div>
             <span className="cp-deal-arrow">›</span>
           </Link>
+        </div>
+      )}
+
+      {/* ── QR Check-in card ── */}
+      {user && (
+        <div className="cp-section">
+          <h2 className="cp-section-title">Gym Check-in</h2>
+          <div className="cp-qr-card">
+            <div className="cp-qr-box">
+              <QRCodeSVG
+                value={`https://maddog-client-portal.vercel.app/checkin?email=${encodeURIComponent(user.email)}`}
+                size={88}
+                bgColor="#ffffff"
+                fgColor="#0D0D0D"
+                level="M"
+              />
+            </div>
+            <div className="cp-qr-info">
+              <div className="cp-qr-label">Member QR Code</div>
+              <div className="cp-qr-title">Scan to Check In</div>
+              <div className="cp-qr-sub">Show this to staff when you arrive at the gym to log your visit and track your streak.</div>
+            </div>
+          </div>
         </div>
       )}
 

@@ -8,6 +8,7 @@ import Explore        from './pages/Explore'
 import Profile        from './pages/Profile'
 import PaymentSuccess from './pages/PaymentSuccess'
 import PaymentCancel  from './pages/PaymentCancel'
+import CheckIn        from './pages/CheckIn'
 import BottomNav      from './components/Layout/BottomNav'
 
 function ProtectedRoute({ children }) {
@@ -41,6 +42,7 @@ export default function App() {
       <Route path="/profile"         element={<ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>} />
       <Route path="/payment-success" element={<ProtectedRoute><AppLayout><PaymentSuccess /></AppLayout></ProtectedRoute>} />
       <Route path="/payment-cancel"  element={<ProtectedRoute><AppLayout><PaymentCancel /></AppLayout></ProtectedRoute>} />
+      <Route path="/checkin"         element={<ProtectedRoute><AppLayout><CheckIn /></AppLayout></ProtectedRoute>} />
       <Route path="*"                element={<Navigate to="/dashboard" replace />} />
     </Routes>
   )
