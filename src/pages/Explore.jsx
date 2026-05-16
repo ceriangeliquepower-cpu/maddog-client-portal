@@ -67,7 +67,7 @@ export default function Explore() {
       {/* ── Dark explore header ── */}
       <div className="cp-explore-hero">
         <img
-          src="/logo-dark.png"
+          src="/logo-icon.png"
           alt="Maddog Performance Institute"
           className="cp-explore-logo"
         />

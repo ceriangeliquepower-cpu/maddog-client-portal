@@ -26,7 +26,7 @@ export default function Login() {
       {/* Dark hero */}
       <div className="login-hero">
         <img
-          src="/logo-dark.png"
+          src="/logo-icon.png"
           alt="Maddog Performance Institute"
           className="login-logo"
         />

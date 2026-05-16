@@ -110,7 +110,7 @@ export default function Dashboard() {
       {/* ── Dark hero header ── */}
       <div className="cp-home-hero">
         <img
-          src="/logo-dark.png"
+          src="/logo-icon.png"
           alt="Maddog Performance Institute"
           className="cp-home-logo"
         />
