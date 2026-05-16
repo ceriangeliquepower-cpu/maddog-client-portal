@@ -603,6 +603,52 @@ textarea { resize: vertical; }
 .cp-tab { flex: 1; background: none; border: none; color: var(--text-3); font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 9px; border-radius: var(--r-sm); transition: background .2s, color .2s; font-family: 'Inter', sans-serif; }
 .cp-tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
 
+/* ── Category tiles (Book step 0) ───────────────────────────── */
+.cp-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.cp-cat-card {
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  border: 2px solid transparent;
+  transition: border-color .2s, transform .12s;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  background: #111;
+  display: flex;
+  flex-direction: column;
+}
+.cp-cat-card.selected { border-color: var(--gold); }
+.cp-cat-card:active   { transform: scale(.97); }
+
+.cp-cat-hero {
+  padding: 20px 14px 14px;
+}
+.cp-cat-emoji { font-size: 34px; margin-bottom: 10px; display: block; line-height: 1; }
+.cp-cat-name  { font-family: 'Bebas Neue', sans-serif; font-size: 19px; letter-spacing: .04em; color: #fff; margin-bottom: 3px; line-height: 1.1; }
+.cp-cat-sub   { font-size: 10px; color: rgba(255,255,255,.4); letter-spacing: .03em; line-height: 1.4; }
+
+.cp-cat-prices {
+  padding: 10px 14px 14px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: auto;
+}
+.cp-cat-price {
+  font-size: 10px;
+  color: rgba(255,255,255,.5);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.cp-cat-price::before { content: '·'; color: var(--gold); font-size: 14px; line-height: 1; }
+
 /* ── Book Session Steps ──────────────────────────────────────── */
 .cp-steps { display: flex; gap: 0; margin-bottom: 28px; position: relative; }
 .cp-steps::before { content: ''; position: absolute; top: 14px; left: 7%; right: 7%; height: 1px; background: var(--border-2); }
@@ -774,3 +820,128 @@ textarea { resize: vertical; }
 .cp-empty { text-align: center; padding: 48px 20px; color: var(--text-3); font-size: 14px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
 
 .cp-toast { position: fixed; bottom: calc(var(--nav-h) + 16px); left: 50%; transform: translateX(-50%); background: var(--text); color: #fff; font-size: 13px; font-weight: 500; padding: 12px 22px; border-radius: var(--r-xl); white-space: nowrap; z-index: 200; box-shadow: var(--shadow-lg); }
+
+/* ── Check-in card (Dashboard) ───────────────────────────────── */
+.cp-checkin-card {
+  width: 100%;
+  background: var(--dark);
+  border: 1px solid rgba(201,168,76,.25);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity .2s;
+  box-shadow: var(--shadow-md);
+  text-align: left;
+}
+.cp-checkin-card:active { opacity: .85; }
+.cp-checkin-icon { font-size: 32px; flex-shrink: 0; }
+.cp-checkin-info { flex: 1; }
+.cp-checkin-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: .04em; color: #fff; margin-bottom: 4px; }
+.cp-checkin-sub { font-size: 12px; color: rgba(255,255,255,.45); line-height: 1.5; }
+.cp-checkin-arrow { font-size: 24px; color: var(--gold); font-family: 'Bebas Neue', sans-serif; flex-shrink: 0; }
+
+/* ── Explore — Section tag ───────────────────────────────────── */
+.cp-section-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  margin-bottom: 4px;
+}
+
+/* ── Explore — Intro ─────────────────────────────────────────── */
+.cp-brochure-intro {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--text-2);
+  text-align: center;
+  padding: 0 4px;
+}
+
+/* ── Explore — Brochure grid ─────────────────────────────────── */
+.cp-brochure-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Explore — Brochure card ─────────────────────────────────── */
+.cp-brochure-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.cp-brochure-hero {
+  padding: 20px 18px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.cp-brochure-emoji { font-size: 36px; line-height: 1; flex-shrink: 0; }
+.cp-brochure-tag { font-size: 9px; font-weight: 700; letter-spacing: .25em; text-transform: uppercase; color: rgba(255,255,255,.45); margin-bottom: 4px; }
+.cp-brochure-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: .04em; color: #fff; line-height: 1.05; }
+
+.cp-brochure-body { padding: 16px 18px 18px; }
+.cp-brochure-desc { font-size: 13px; line-height: 1.7; color: var(--text-2); margin-bottom: 12px; }
+
+.cp-brochure-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding-left: 0;
+}
+.cp-brochure-list li {
+  font-size: 12px;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cp-brochure-list li::before {
+  content: '·';
+  color: var(--gold);
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.cp-brochure-prices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.cp-brochure-price-chip {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  background: var(--gold-dim);
+  color: var(--gold-dark);
+  border: 1px solid var(--gold-mid);
+  border-radius: 20px;
+  padding: 4px 12px;
+}
+
+.cp-brochure-toggle {
+  background: none;
+  border: none;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  color: var(--text-3);
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  text-transform: uppercase;
+}

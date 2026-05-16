@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 
 export default function CheckIn() {
   const { user } = useAuth()
-  const [params] = useSearchParams()
   const [status,  setStatus]  = useState('checking') // checking | success | already | error
   const [member,  setMember]  = useState(null)
 
-  // The email comes from the QR code URL param, or fall back to logged-in user
-  const targetEmail = params.get('email') || user?.email
+  // Always use the logged-in member's email — gym QR is a single static code
+  const targetEmail = user?.email
 
   useEffect(() => {
     if (!targetEmail) { setStatus('error'); return }

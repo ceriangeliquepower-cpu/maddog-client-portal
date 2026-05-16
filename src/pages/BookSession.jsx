@@ -3,7 +3,64 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 
-const STEPS = ['Service', 'Practitioner', 'Date & Time', 'Confirm']
+const STEPS = ['Category', 'Service', 'Practitioner', 'Date & Time', 'Confirm']
+
+const CATEGORIES = [
+  {
+    id: 'mma',
+    label: 'MMA & Combat Sports',
+    sub: 'MMA · BJJ · Kickboxing · Boxing',
+    emoji: '🥊',
+    gradient: 'linear-gradient(160deg, #1A0A0A 0%, #2D1010 100%)',
+    dbCats: ['class', 'mma', 'bjj', 'kickboxing', 'boxing'],
+    highlights: ['R800 / month', 'R1 400 Unlimited', 'R150 drop-in'],
+  },
+  {
+    id: 'pt',
+    label: 'Personal Training',
+    sub: '1-on-1 coaching sessions',
+    emoji: '🏋️',
+    gradient: 'linear-gradient(160deg, #0A1408 0%, #142010 100%)',
+    dbCats: ['personal_training', 'pt'],
+    highlights: ['From R450 / session'],
+  },
+  {
+    id: 'physio',
+    label: 'Physio',
+    sub: 'Injury assessment & rehab',
+    emoji: '🩺',
+    gradient: 'linear-gradient(160deg, #080E1A 0%, #0D1628 100%)',
+    dbCats: ['physio'],
+    highlights: ['From R650 / session'],
+  },
+  {
+    id: 'appointments',
+    label: 'Appointments',
+    sub: 'Private consultations',
+    emoji: '📋',
+    gradient: 'linear-gradient(160deg, #10080A 0%, #1C0D12 100%)',
+    dbCats: ['appointment', 'consultation'],
+    highlights: ['Free consultation'],
+  },
+  {
+    id: 'recovery',
+    label: 'Recovery',
+    sub: 'Sauna · Ice Bath · Contrast',
+    emoji: '❄️',
+    gradient: 'linear-gradient(160deg, #081018 0%, #0C1A24 100%)',
+    dbCats: ['recovery', 'contrast', 'sauna', 'cold_plunge'],
+    highlights: ['Post-training from R80', 'General from R270'],
+  },
+  {
+    id: 'wellness',
+    label: 'Wellness & IV Therapy',
+    sub: 'IV Drips · Slimming · Peptides',
+    emoji: '💧',
+    gradient: 'linear-gradient(160deg, #0A0818 0%, #150D28 100%)',
+    dbCats: ['wellness', 'iv', 'iv_therapy', 'slimming', 'peptide'],
+    highlights: ['IV Drips from R350', 'Slimming from R500'],
+  },
+]
 
 function genRef() {
   return 'MDB-' + Math.random().toString(36).slice(2, 7).toUpperCase()
@@ -39,12 +96,13 @@ export default function BookSession() {
   const navigate = useNavigate()
   const pfFormRef = useRef(null)
 
-  const [step, setStep]             = useState(0)
-  const [services, setServices]     = useState([])
-  const [practitioners, setPractitioners] = useState([])
-  const [availability, setAvailability]   = useState([])
+  const [step, setStep]                         = useState(0)
+  const [services, setServices]                 = useState([])
+  const [practitioners, setPractitioners]       = useState([])
+  const [availability, setAvailability]         = useState([])
   const [existingBookings, setExistingBookings] = useState([])
 
+  const [selectedCategory, setSelectedCategory]         = useState(null)
   const [selectedService, setSelectedService]           = useState(null)
   const [selectedPractitioner, setSelectedPractitioner] = useState(null)
   const [selectedDate, setSelectedDate]                 = useState(null)
@@ -56,11 +114,11 @@ export default function BookSession() {
   const [toast, setToast]           = useState('')
 
   // PayFast redirect state
-  const [pfFields, setPfFields]     = useState(null)
-  const [pfUrl, setPfUrl]           = useState('')
+  const [pfFields, setPfFields] = useState(null)
+  const [pfUrl, setPfUrl]       = useState('')
 
   // Free booking done state
-  const [done, setDone]             = useState(false)
+  const [done, setDone]           = useState(false)
   const [bookingRef, setBookingRef] = useState('')
 
   const showToast = msg => { setToast(msg); setTimeout(() => setToast(''), 3500) }
@@ -108,10 +166,10 @@ export default function BookSession() {
     }
   }, [pfFields])
 
-  const servicesByCategory = services.reduce((acc, s) => {
-    ;(acc[s.category] ??= []).push(s)
-    return acc
-  }, {})
+  // Services filtered to selected category
+  const filteredServices = selectedCategory
+    ? services.filter(s => selectedCategory.dbCats.includes(s.category?.toLowerCase()))
+    : []
 
   const availableDates = nextDates(21).filter(d => {
     const dow = d.getDay()
@@ -187,7 +245,6 @@ export default function BookSession() {
 
     setBookingRef(ref)
 
-    // Paid service → redirect to PayFast
     if (selectedService.price_cents > 0) {
       try {
         const res = await fetch('/api/payfast-payment', {
@@ -205,13 +262,11 @@ export default function BookSession() {
         if (!res.ok) throw new Error(json.error)
         setPfUrl(json.payfast_url)
         setPfFields(json.fields)
-        // useEffect will auto-submit the form
       } catch (err) {
         showToast('Payment redirect failed. Please contact us.')
         setSubmitting(false)
       }
     } else {
-      // Free service → show confirmation
       setDone(true)
       setSubmitting(false)
     }
@@ -219,7 +274,6 @@ export default function BookSession() {
 
   if (loading) return <div className="cp-loading"><div className="cp-spinner" /></div>
 
-  // Redirecting to PayFast — show loading + hidden form
   if (pfFields) {
     return (
       <div className="cp-page cp-book-done">
@@ -235,7 +289,6 @@ export default function BookSession() {
     )
   }
 
-  // Free booking confirmed
   if (done) {
     return (
       <div className="cp-page cp-book-done">
@@ -268,43 +321,97 @@ export default function BookSession() {
         ))}
       </div>
 
-      {/* Step 0 — Service */}
+      {/* ── Step 0 — Category ── */}
       {step === 0 && (
         <div className="cp-book-step">
-          {Object.entries(servicesByCategory).map(([cat, svcs]) => (
-            <div key={cat} className="cp-service-group">
-              <div className="cp-service-cat">
-                {cat === 'class' ? 'Training' : cat === 'recovery' ? 'Recovery & Wellness' : 'Appointments'}
-              </div>
-              {svcs.map(s => (
-                <button
-                  key={s.id}
-                  className={`cp-service-card${selectedService?.id === s.id ? ' selected' : ''}`}
-                  onClick={() => { setSelectedService(s); setSelectedPractitioner(null); setSelectedDate(null); setSelectedTime(null) }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-                    <div className="cp-service-name">{s.name}</div>
-                    <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 16, color: 'var(--gold)', whiteSpace: 'nowrap' }}>
-                      {s.price_cents > 0 ? fmtPrice(s.price_cents) : 'Free'}
-                    </div>
-                  </div>
-                  {s.duration_minutes && <div className="cp-service-meta">{s.duration_minutes} min</div>}
-                  {s.description && <div className="cp-service-desc">{s.description}</div>}
-                </button>
-              ))}
-            </div>
-          ))}
+          <div className="cp-book-sublabel" style={{ marginBottom: 16 }}>What are you booking for?</div>
+          <div className="cp-cat-grid">
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat.id}
+                className={`cp-cat-card${selectedCategory?.id === cat.id ? ' selected' : ''}`}
+                onClick={() => { setSelectedCategory(cat); setSelectedService(null) }}
+              >
+                <div className="cp-cat-hero" style={{ background: cat.gradient }}>
+                  <span className="cp-cat-emoji">{cat.emoji}</span>
+                  <div className="cp-cat-name">{cat.label}</div>
+                  <div className="cp-cat-sub">{cat.sub}</div>
+                </div>
+                <div className="cp-cat-prices">
+                  {cat.highlights.map(h => (
+                    <div key={h} className="cp-cat-price">{h}</div>
+                  ))}
+                </div>
+              </button>
+            ))}
+          </div>
           <div className="cp-step-footer">
-            <button className="cp-btn-primary" style={{ flex: 1 }} disabled={!selectedService} onClick={() => setStep(1)}>
+            <button
+              className="cp-btn-primary"
+              style={{ flex: 1 }}
+              disabled={!selectedCategory}
+              onClick={() => setStep(1)}
+            >
               Next →
             </button>
           </div>
         </div>
       )}
 
-      {/* Step 1 — Practitioner */}
+      {/* ── Step 1 — Service ── */}
       {step === 1 && (
         <div className="cp-book-step">
+          {selectedCategory && (
+            <div className="cp-book-sublabel" style={{ marginBottom: 4 }}>
+              {selectedCategory.emoji} {selectedCategory.label}
+            </div>
+          )}
+          <div className="cp-book-sublabel" style={{ marginBottom: 16, opacity: .6, fontSize: 12 }}>
+            Select a service
+          </div>
+
+          {filteredServices.length === 0 ? (
+            <div className="cp-empty">
+              <p>No services available for this category yet.</p>
+              <p style={{ fontSize: 12, marginTop: 8 }}>Please contact us to book directly.</p>
+            </div>
+          ) : (
+            filteredServices.map(s => (
+              <button
+                key={s.id}
+                className={`cp-service-card${selectedService?.id === s.id ? ' selected' : ''}`}
+                onClick={() => setSelectedService(s)}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+                  <div className="cp-service-name">{s.name}</div>
+                  <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 16, color: 'var(--gold)', whiteSpace: 'nowrap' }}>
+                    {s.price_cents > 0 ? fmtPrice(s.price_cents) : 'Free'}
+                  </div>
+                </div>
+                {s.duration_minutes && <div className="cp-service-meta">{s.duration_minutes} min</div>}
+                {s.description && <div className="cp-service-desc">{s.description}</div>}
+              </button>
+            ))
+          )}
+
+          <div className="cp-step-footer">
+            <button className="cp-btn-secondary" onClick={() => setStep(0)}>← Back</button>
+            <button
+              className="cp-btn-primary"
+              style={{ flex: 1 }}
+              disabled={!selectedService}
+              onClick={() => setStep(2)}
+            >
+              Next →
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Step 2 — Practitioner ── */}
+      {step === 2 && (
+        <div className="cp-book-step">
+          <div className="cp-book-sublabel" style={{ marginBottom: 16 }}>Choose your practitioner</div>
           <div className="cp-pract-grid">
             {practitioners.map(p => (
               <button
@@ -325,14 +432,21 @@ export default function BookSession() {
             ))}
           </div>
           <div className="cp-step-footer">
-            <button className="cp-btn-secondary" onClick={() => setStep(0)}>← Back</button>
-            <button className="cp-btn-primary" style={{ flex: 1 }} disabled={!selectedPractitioner} onClick={() => setStep(2)}>Next →</button>
+            <button className="cp-btn-secondary" onClick={() => setStep(1)}>← Back</button>
+            <button
+              className="cp-btn-primary"
+              style={{ flex: 1 }}
+              disabled={!selectedPractitioner}
+              onClick={() => setStep(3)}
+            >
+              Next →
+            </button>
           </div>
         </div>
       )}
 
-      {/* Step 2 — Date & Time */}
-      {step === 2 && (
+      {/* ── Step 3 — Date & Time ── */}
+      {step === 3 && (
         <div className="cp-book-step">
           {availableDates.length === 0 ? (
             <div className="cp-empty"><p>No available dates for this practitioner.</p></div>
@@ -378,16 +492,27 @@ export default function BookSession() {
             </>
           )}
           <div className="cp-step-footer">
-            <button className="cp-btn-secondary" onClick={() => setStep(1)}>← Back</button>
-            <button className="cp-btn-primary" style={{ flex: 1 }} disabled={!selectedDate || !selectedTime} onClick={() => setStep(3)}>Next →</button>
+            <button className="cp-btn-secondary" onClick={() => setStep(2)}>← Back</button>
+            <button
+              className="cp-btn-primary"
+              style={{ flex: 1 }}
+              disabled={!selectedDate || !selectedTime}
+              onClick={() => setStep(4)}
+            >
+              Next →
+            </button>
           </div>
         </div>
       )}
 
-      {/* Step 3 — Confirm */}
-      {step === 3 && (
+      {/* ── Step 4 — Confirm ── */}
+      {step === 4 && (
         <div className="cp-book-step">
           <div className="cp-confirm-card">
+            <div className="cp-confirm-row">
+              <span className="cp-confirm-label">Category</span>
+              <span>{selectedCategory?.label}</span>
+            </div>
             <div className="cp-confirm-row">
               <span className="cp-confirm-label">Service</span>
               <span>{selectedService?.name}</span>
@@ -438,7 +563,7 @@ export default function BookSession() {
           )}
 
           <div className="cp-step-footer">
-            <button className="cp-btn-secondary" onClick={() => setStep(2)}>← Back</button>
+            <button className="cp-btn-secondary" onClick={() => setStep(3)}>← Back</button>
             <button className="cp-btn-primary" style={{ flex: 1 }} onClick={handleConfirm} disabled={submitting}>
               {submitting
                 ? 'Processing…'

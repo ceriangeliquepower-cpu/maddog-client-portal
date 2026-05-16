@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { QRCodeSVG } from 'qrcode.react'
+import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 
@@ -41,6 +40,7 @@ function greeting() {
 
 export default function Dashboard() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [member,   setMember]   = useState(null)
   const [upcoming, setUpcoming] = useState([])
   const [stats,    setStats]    = useState({ total: 0, attended: 0 })
@@ -249,28 +249,24 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ── QR Check-in card ── */}
-      {user && (
-        <div className="cp-section">
-          <h2 className="cp-section-title">Gym Check-in</h2>
-          <div className="cp-qr-card">
-            <div className="cp-qr-box">
-              <QRCodeSVG
-                value={`https://maddog-client-portal.vercel.app/checkin?email=${encodeURIComponent(user.email)}`}
-                size={88}
-                bgColor="#ffffff"
-                fgColor="#0D0D0D"
-                level="M"
-              />
-            </div>
-            <div className="cp-qr-info">
-              <div className="cp-qr-label">Member QR Code</div>
-              <div className="cp-qr-title">Scan to Check In</div>
-              <div className="cp-qr-sub">Show this to staff when you arrive at the gym to log your visit and track your streak.</div>
+      {/* ── Quick Check-in ── */}
+      <div className="cp-section">
+        <h2 className="cp-section-title">Gym Check-in</h2>
+        <button
+          className="cp-checkin-card"
+          onClick={() => navigate('/checkin')}
+          aria-label="Log today's gym visit"
+        >
+          <div className="cp-checkin-icon">📍</div>
+          <div className="cp-checkin-info">
+            <div className="cp-checkin-title">Log Today's Visit</div>
+            <div className="cp-checkin-sub">
+              Scan the QR code at the gym, or tap here to check in manually.
             </div>
           </div>
-        </div>
-      )}
+          <span className="cp-checkin-arrow">›</span>
+        </button>
+      </div>
 
       {/* ── Membership card ── */}
       {member && (
