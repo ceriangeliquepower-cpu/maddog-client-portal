@@ -77,11 +77,7 @@ export default function Login() {
 
             <p className="login-help">
               Not a member yet?{' '}
-              <a
-                href="https://maddogperformance.co.za/contact.html"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href="mailto:info@maddogperformance.co.za">
                 Get in touch
               </a>
             </p>

@@ -122,17 +122,17 @@ export default function Explore() {
           <iframe
             className="cp-gym-map"
             title="Maddog Performance Institute location"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3459.123456789!2d32.0668!3d-29.5383!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1ef70e9b00000001%3A0x0!2sMaddog+Performance+Institute%2C+Ballito!5e0!3m2!1sen!2sza!4v1600000000000!5m2!1sen!2sza"
+            src="https://maps.google.com/maps?q=22+Sandra+Road+Balvista+Centre+Ballito+KZN+South+Africa&t=&z=15&ie=UTF8&iwloc=&output=embed"
             allowFullScreen
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
           />
           <div className="cp-gym-body">
             <div className="cp-gym-name">Maddog Performance Institute</div>
-            <div className="cp-gym-address">Ballito, KwaZulu-Natal, South Africa</div>
+            <div className="cp-gym-address">22 Sandra Road, Balvista Centre, Ballito</div>
             <div className="cp-gym-actions">
               <a
-                href="https://maps.google.com/?q=Maddog+Performance+Institute+Ballito"
+                href="https://maps.google.com/?q=22+Sandra+Road+Balvista+Centre+Ballito+KZN"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="cp-gym-action-btn maps"
@@ -141,20 +141,29 @@ export default function Explore() {
                 📍 Directions
               </a>
               <a
-                href="tel:+27000000000"
+                href="tel:+27634421690"
                 className="cp-gym-action-btn call"
                 aria-label="Call the gym"
               >
                 📞 Call
               </a>
               <a
-                href="https://wa.me/27000000000"
+                href="https://wa.me/27634421690"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="cp-gym-action-btn wa"
                 aria-label="WhatsApp the gym"
               >
                 💬 WhatsApp
+              </a>
+            </div>
+            <div style={{ marginTop: 12 }}>
+              <a
+                href="mailto:info@maddogperformance.co.za"
+                style={{ fontSize: 13, color: 'var(--text-2)', display: 'flex', alignItems: 'center', gap: 6 }}
+                aria-label="Email the gym"
+              >
+                ✉ info@maddogperformance.co.za
               </a>
             </div>
           </div>
