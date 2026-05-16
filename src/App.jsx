@@ -4,6 +4,7 @@ import Login          from './pages/Login'
 import Dashboard      from './pages/Dashboard'
 import MyBookings     from './pages/MyBookings'
 import BookSession    from './pages/BookSession'
+import Explore        from './pages/Explore'
 import Profile        from './pages/Profile'
 import PaymentSuccess from './pages/PaymentSuccess'
 import PaymentCancel  from './pages/PaymentCancel'
@@ -36,6 +37,7 @@ export default function App() {
       <Route path="/dashboard"       element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
       <Route path="/bookings"        element={<ProtectedRoute><AppLayout><MyBookings /></AppLayout></ProtectedRoute>} />
       <Route path="/book"            element={<ProtectedRoute><AppLayout><BookSession /></AppLayout></ProtectedRoute>} />
+      <Route path="/explore"         element={<ProtectedRoute><AppLayout><Explore /></AppLayout></ProtectedRoute>} />
       <Route path="/profile"         element={<ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>} />
       <Route path="/payment-success" element={<ProtectedRoute><AppLayout><PaymentSuccess /></AppLayout></ProtectedRoute>} />
       <Route path="/payment-cancel"  element={<ProtectedRoute><AppLayout><PaymentCancel /></AppLayout></ProtectedRoute>} />
