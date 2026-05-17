@@ -55,6 +55,8 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
 }
 
 h1, h2, h3, .heading { font-family: 'Bebas Neue', sans-serif; letter-spacing: .04em; }
@@ -81,7 +83,7 @@ input:focus, textarea:focus, select:focus {
 textarea { resize: vertical; }
 
 /* ── Layout ─────────────────────────────────────────────────── */
-.cp-root { display: flex; flex-direction: column; min-height: 100dvh; background: var(--bg); }
+.cp-root { display: flex; flex-direction: column; min-height: 100dvh; background: var(--bg); width: 100%; overflow-x: hidden; position: relative; }
 .cp-main { flex: 1; padding-bottom: calc(var(--nav-h) + 8px); overflow-y: auto; }
 .cp-page { max-width: 480px; margin: 0 auto; padding: 20px 16px 8px; }
 .cp-page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
@@ -280,7 +282,7 @@ textarea { resize: vertical; }
 }
 
 .cp-home-logo {
-  width: 200px;
+  width: 260px;
   height: auto;
   display: block;
   margin: 0 auto 20px;
@@ -410,7 +412,7 @@ textarea { resize: vertical; }
   align-items: center;
   text-align: center;
 }
-.cp-explore-logo { width: 180px; height: auto; display: block; margin: 0 auto 12px; }
+.cp-explore-logo { width: 240px; height: auto; display: block; margin: 0 auto 12px; }
 .cp-explore-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: .04em; color: #fff; }
 .cp-explore-sub { font-size: 12px; color: rgba(255,255,255,.4); margin-top: 4px; }
 
