@@ -50,7 +50,7 @@ const CATEGORIES = [
     id: 'recovery',
     label: 'Recovery',
     sub: 'Sauna · Ice Bath · Contrast',
-    image: 'https://images.unsplash.com/photo-1608138278547-a5e1b37cca9d?auto=format&fit=crop&w=600&q=75',
+    image: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&w=600&q=75',
     dbCats: ['recovery', 'contrast', 'sauna', 'cold_plunge'],
     isTraining: false,
   },

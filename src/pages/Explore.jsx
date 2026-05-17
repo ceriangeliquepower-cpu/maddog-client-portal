@@ -55,6 +55,14 @@ const DISCIPLINES = [
     body: "Maddog's Powerlifting programme is built around the three competition lifts: squat, bench press and deadlift. Coached by experienced strength athletes, the programme focuses on correct technique, progressive overload and meet preparation for those who want to compete — or simply get seriously strong.",
     bullets: ['Squat, bench & deadlift coaching', 'Beginner to competitive programming', 'Meet preparation available', 'Open to all strength levels'],
   },
+  {
+    id: 'pt',
+    tag: 'Personal Training',
+    name: 'Personal Training',
+    image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=75',
+    body: "Personal Training at Maddog is a fully personalised 1-on-1 coaching experience built around your goals — whether that's losing weight, gaining strength, improving athletic performance or recovering from injury. Your trainer designs every session around you, tracks your progress and pushes you at the right pace.",
+    bullets: ['Fully personalised programme', 'Goal-specific training plans', 'Progress tracking & accountability', 'All fitness levels & goals'],
+  },
 ]
 
 const WELLNESS = [
@@ -229,7 +237,7 @@ export default function Explore() {
       {/* ── Training ── */}
       <div className="cp-section">
         <div className="cp-section-tag">Training</div>
-        <h2 className="cp-section-title">Combat Sports &amp; Fitness</h2>
+        <h2 className="cp-section-title">Training &amp; Fitness</h2>
         <div className="cp-photo-grid">
           {DISCIPLINES.map(d => <PhotoCard key={d.id} card={d} onTap={setActiveCard} />)}
         </div>
