@@ -83,6 +83,17 @@ const TRIAL_SERVICE = {
 
 const TRAINING_MEMBERSHIP_TYPES = ['training', 'training_recovery']
 
+// Gym opening hours — used as fallback for group classes and for recovery
+// Key = day_of_week (0=Sun … 6=Sat). Sunday is intentionally absent (closed).
+const GYM_HOURS = {
+  1: { open: '05:30', close: '20:00' }, // Monday
+  2: { open: '05:30', close: '20:00' }, // Tuesday
+  3: { open: '05:30', close: '20:00' }, // Wednesday
+  4: { open: '05:30', close: '20:00' }, // Thursday
+  5: { open: '05:30', close: '18:00' }, // Friday
+  6: { open: '07:00', close: '13:00' }, // Saturday
+}
+
 function genRef() {
   return 'MDB-' + Math.random().toString(36).slice(2, 7).toUpperCase()
 }
@@ -224,22 +235,67 @@ export default function BookSession() {
     ? practitioners.filter(p => linkedPractIds.includes(p.id))
     : practitioners
 
+  // Category mode helpers
+  // Group class = training category that isn't 1-on-1 PT
+  const isGroupClass = selectedCategory?.isTraining && selectedCategory.id !== 'pt'
+  // Recovery = sauna / cold plunge / contrast — show full gym hours, all open days
+  const isRecovery   = selectedCategory?.id === 'recovery'
+  // For PT / physio / wellness / assessment: rely on practitioner's availability table
+  const usePractAvailability = !isGroupClass && !isRecovery
+
+  // ── Available dates ────────────────────────────────────────────
+  // Group classes & recovery → all gym open days (Mon–Sat)
+  // One-on-one services     → only days the practitioner has set availability
   const availableDates = nextDates(21).filter(d => {
     const dow = d.getDay()
+    if (isGroupClass || isRecovery) {
+      return GYM_HOURS[dow] !== undefined // gym is open this day
+    }
     return availability.some(a => a.day_of_week === dow && a.active !== false)
   })
 
+  // ── Time slots ─────────────────────────────────────────────────
   const getSlots = () => {
     if (!selectedDate || !selectedPractitioner || !selectedService) return []
     const dow = selectedDate.getDay()
-    const av  = availability.find(a => a.day_of_week === dow)
-    if (!av) return []
-
     const dur = selectedService.duration_minutes || 60
+
+    // Determine window start/end for this day
+    let windowStart, windowEnd
+
+    if (isRecovery) {
+      // Recovery: full gym hours — no practitioner schedule constraint
+      const gymDay = GYM_HOURS[dow]
+      if (!gymDay) return []
+      windowStart = gymDay.open
+      windowEnd   = gymDay.close
+    } else if (isGroupClass) {
+      // Group class: use practitioner's availability if they have an entry for this
+      // day, otherwise fall back to gym hours so the calendar is never empty
+      const av = availability.find(a => a.day_of_week === dow && a.active !== false)
+      if (av) {
+        windowStart = av.start_time.slice(0, 5)
+        windowEnd   = av.end_time.slice(0, 5)
+      } else {
+        const gymDay = GYM_HOURS[dow]
+        if (!gymDay) return []
+        windowStart = gymDay.open
+        windowEnd   = gymDay.close
+      }
+    } else {
+      // PT / physio / wellness / assessment: strict practitioner availability
+      const av = availability.find(a => a.day_of_week === dow && a.active !== false)
+      if (!av) return []
+      windowStart = av.start_time.slice(0, 5)
+      windowEnd   = av.end_time.slice(0, 5)
+    }
+
     const slots = []
-    let [sh, sm] = av.start_time.slice(0, 5).split(':').map(Number)
-    const [eh, em] = av.end_time.slice(0, 5).split(':').map(Number)
+    let [sh, sm] = windowStart.split(':').map(Number)
+    const [eh, em] = windowEnd.split(':').map(Number)
     const endMins  = eh * 60 + em
+    // Recovery uses 30-min increments; classes/PT use 60-min (class duration) increments
+    const increment = isRecovery ? 30 : Math.min(dur, 60)
 
     while (sh * 60 + sm + dur <= endMins) {
       const label   = fmt12(`${String(sh).padStart(2,'0')}:${String(sm).padStart(2,'0')}`)
@@ -250,15 +306,15 @@ export default function BookSession() {
         const [bh, bm] = b.start_time.slice(0,5).split(':').map(Number)
         const bStart = bh * 60 + bm
         const bEnd   = b.end_time
-          ? (() => { const [eh,em] = b.end_time.slice(0,5).split(':').map(Number); return eh*60+em })()
+          ? (() => { const [xh,xm] = b.end_time.slice(0,5).split(':').map(Number); return xh*60+xm })()
           : bStart + 60
         const sStart = sh * 60 + sm
         const sEnd   = sStart + dur
         return sStart < bEnd && sEnd > bStart
       })
       slots.push({ label, val, conflict })
-      sm += 30
-      if (sm >= 60) { sh += 1; sm -= 60 }
+      sm += increment
+      if (sm >= 60) { sh += Math.floor(sm / 60); sm = sm % 60 }
     }
     return slots
   }
@@ -581,7 +637,14 @@ export default function BookSession() {
       {step === 3 && (
         <div className="cp-book-step">
           {availableDates.length === 0 ? (
-            <div className="cp-empty"><p>No available dates for this practitioner.</p></div>
+            <div className="cp-empty">
+              <p>No available dates found.</p>
+              <p style={{ fontSize: 12, marginTop: 8, color: 'var(--text-3)' }}>
+                {usePractAvailability
+                  ? 'This practitioner has no schedule set yet. Please contact us to book directly.'
+                  : 'The gym appears to be closed for the next 3 weeks — please contact us.'}
+              </p>
+            </div>
           ) : (
             <>
               <div className="cp-book-sublabel">Select a date</div>
