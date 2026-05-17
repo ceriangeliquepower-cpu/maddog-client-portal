@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -18,44 +19,39 @@ const DISCIPLINES = [
     id: 'mma',
     tag: 'Combat Sports',
     name: 'Mixed Martial Arts',
-    emoji: '🥊',
-    gradient: 'linear-gradient(160deg, #1A0A0A 0%, #2D1010 100%)',
-    body: 'MMA at Maddog is built on a foundation of real technique, not ego. Whether you\'re a complete beginner or an experienced fighter, our structured MMA programme develops striking, grappling and cage-work skills in a disciplined, supportive environment. Our coaches have competed at the highest levels — they bring that experience to every session.',
+    image: 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?auto=format&fit=crop&w=800&q=75',
+    body: "MMA at Maddog is built on a foundation of real technique, not ego. Whether you're a complete beginner or an experienced fighter, our structured MMA programme develops striking, grappling and cage-work skills in a disciplined, supportive environment. Our coaches have competed at the highest levels — they bring that experience to every session.",
     bullets: ['Structured beginner & advanced classes', 'Cage work, clinch & wrestling', 'Competition preparation available', 'World-class coaching staff'],
   },
   {
     id: 'bjj',
     tag: 'Grappling',
     name: 'Brazilian Jiu-Jitsu',
-    emoji: '🤸',
-    gradient: 'linear-gradient(160deg, #0A1010 0%, #102020 100%)',
-    body: 'Brazilian Jiu-Jitsu is the art of using technique and leverage to overcome physical size and strength. Our BJJ programme covers both the gi and no-gi, with structured drilling, positional sparring and live rolling. Classes suit everyone from first-timers to seasoned grapplers preparing for competition.',
+    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=75',
+    body: "Brazilian Jiu-Jitsu is the art of using technique and leverage to overcome physical size and strength. Our BJJ programme covers both the gi and no-gi, with structured drilling, positional sparring and live rolling. Classes suit everyone from first-timers to seasoned grapplers preparing for competition.",
     bullets: ['Gi & No-Gi classes', 'Technique-first methodology', 'Open mat rolling sessions', 'Beginner-friendly entry'],
   },
   {
     id: 'kickboxing',
     tag: 'Striking',
     name: 'Kickboxing',
-    emoji: '🦵',
-    gradient: 'linear-gradient(160deg, #18100A 0%, #2A1A0A 100%)',
-    body: 'Our kickboxing classes combine stand-up striking with sharp footwork, cardio conditioning and bag work. You\'ll develop punch combinations, kicks, knees and defensive movement in a high-energy class that\'s as much of a workout as it is a skill session. Suitable for anyone wanting to get fit and learn to strike correctly.',
+    image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=75',
+    body: "Our kickboxing classes combine stand-up striking with sharp footwork, cardio conditioning and bag work. You'll develop punch combinations, kicks, knees and defensive movement in a high-energy class that's as much of a workout as it is a skill session. Suitable for anyone wanting to get fit and learn to strike correctly.",
     bullets: ['Punch, kick & knee combinations', 'Heavy bag & pad work', 'Cardio conditioning', 'All fitness levels welcome'],
   },
   {
     id: 'boxing',
     tag: 'Fitness & Skill',
     name: 'Boxing Fitness',
-    emoji: '🥋',
-    gradient: 'linear-gradient(160deg, #0A0A18 0%, #101028 100%)',
-    body: 'Boxing Fitness bridges the gap between technical boxing and full-body conditioning. No prior experience needed. Sessions focus on correct punching form, footwork and defensive habits alongside circuits that push your endurance and build real functional strength. One of the most effective fitness classes you\'ll ever take.',
+    image: 'https://images.unsplash.com/photo-1517438476312-10d79c077509?auto=format&fit=crop&w=800&q=75',
+    body: "Boxing Fitness bridges the gap between technical boxing and full-body conditioning. No prior experience needed. Sessions focus on correct punching form, footwork and defensive habits alongside circuits that push your endurance and build real functional strength. One of the most effective fitness classes you'll ever take.",
     bullets: ['Punch technique & combinations', 'Footwork & head movement', 'High-intensity conditioning', 'Suitable for total beginners'],
   },
   {
     id: 'powerlifting',
     tag: 'Strength Sport',
     name: 'Powerlifting',
-    emoji: '🏆',
-    gradient: 'linear-gradient(160deg, #0A100A 0%, #111A0A 100%)',
+    image: 'https://images.unsplash.com/photo-1534367610401-9f5ed68180aa?auto=format&fit=crop&w=800&q=75',
     body: "Maddog's Powerlifting programme is built around the three competition lifts: squat, bench press and deadlift. Coached by experienced strength athletes, the programme focuses on correct technique, progressive overload and meet preparation for those who want to compete — or simply get seriously strong.",
     bullets: ['Squat, bench & deadlift coaching', 'Beginner to competitive programming', 'Meet preparation available', 'Open to all strength levels'],
   },
@@ -66,9 +62,8 @@ const WELLNESS = [
     id: 'contrast',
     tag: 'Recovery Suite',
     name: 'Contrast Therapy',
-    emoji: '🌡️',
-    gradient: 'linear-gradient(160deg, #081018 0%, #0C1A24 100%)',
-    body: 'Hot-to-cold contrast therapy is one of the most powerful recovery tools available to athletes. Alternating between our infrared sauna and cold plunge pool dramatically accelerates muscle recovery, reduces inflammation and sharpens mental clarity. Used by elite athletes worldwide — now accessible in Ballito.',
+    image: 'https://images.unsplash.com/photo-1608138278547-a5e1b37cca9d?auto=format&fit=crop&w=800&q=75',
+    body: "Hot-to-cold contrast therapy is one of the most powerful recovery tools available to athletes. Alternating between our infrared sauna and cold plunge pool dramatically accelerates muscle recovery, reduces inflammation and sharpens mental clarity. Used by elite athletes worldwide — now accessible in Ballito.",
     bullets: ['Infrared sauna session', 'Cold plunge (ice bath)', 'Hot/cold protocol guidance', 'Post-training & general sessions'],
     prices: ['Post-training: from R80', 'General use: from R270'],
   },
@@ -76,9 +71,8 @@ const WELLNESS = [
     id: 'sauna',
     tag: 'Recovery Suite',
     name: 'Infrared Sauna',
-    emoji: '🔥',
-    gradient: 'linear-gradient(160deg, #180A08 0%, #281410 100%)',
-    body: 'Our infrared sauna penetrates deeper than traditional saunas, heating the body from within. The result is enhanced circulation, improved detoxification, deep muscle relaxation and a profound sense of recovery. A standalone sauna session or the first half of a contrast therapy protocol.',
+    image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=75',
+    body: "Our infrared sauna penetrates deeper than traditional saunas, heating the body from within. The result is enhanced circulation, improved detoxification, deep muscle relaxation and a profound sense of recovery. A standalone sauna session or the first half of a contrast therapy protocol.",
     bullets: ['Deep infrared heat', 'Muscle relaxation & detox', 'Improved circulation', 'Private sessions available'],
     prices: null,
   },
@@ -86,9 +80,8 @@ const WELLNESS = [
     id: 'cold',
     tag: 'Recovery Suite',
     name: 'Cold Plunge',
-    emoji: '❄️',
-    gradient: 'linear-gradient(160deg, #081018 0%, #0D1A28 100%)',
-    body: 'The cold plunge is a controlled exposure to cold water that triggers a full-body physiological response — reduced inflammation, a flood of endorphins and a noticeable mental reset. Regular cold exposure builds resilience, improves mood and speeds up recovery from hard training sessions.',
+    image: 'https://images.unsplash.com/photo-1556909114-44e3e70034e2?auto=format&fit=crop&w=800&q=75',
+    body: "The cold plunge is a controlled exposure to cold water that triggers a full-body physiological response — reduced inflammation, a flood of endorphins and a noticeable mental reset. Regular cold exposure builds resilience, improves mood and speeds up recovery from hard training sessions.",
     bullets: ['Controlled cold exposure', 'Reduces inflammation', 'Mental clarity & mood boost', 'Pairs perfectly with sauna'],
     prices: null,
   },
@@ -99,9 +92,8 @@ const IV_DRIPS = [
     id: 'iv',
     tag: 'IV Therapy',
     name: 'Wellness IV Drips',
-    emoji: '💉',
-    gradient: 'linear-gradient(160deg, #0A0818 0%, #150D28 100%)',
-    body: 'Our IV therapy range delivers vitamins, minerals and hydration directly into the bloodstream — bypassing the digestive system for near-instant effect. Whether you\'re recovering from intense training, fighting illness, or looking for an energy reset, our medical team tailors each drip to your goals.',
+    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=75',
+    body: "Our IV therapy range delivers vitamins, minerals and hydration directly into the bloodstream — bypassing the digestive system for near-instant effect. Whether you're recovering from intense training, fighting illness, or looking for an energy reset, our medical team tailors each drip to your goals.",
     bullets: ['Myers Cocktail & Vitamin C drips', 'Athletic performance & recovery', 'Immune support formulas', 'Administered by qualified staff'],
     prices: ['IV Drips from R350'],
   },
@@ -109,9 +101,8 @@ const IV_DRIPS = [
     id: 'slimming',
     tag: 'Body Transformation',
     name: 'Slimming & Aesthetics',
-    emoji: '✦',
-    gradient: 'linear-gradient(160deg, #10080A 0%, #1C0D18 100%)',
-    body: 'Our medical slimming programme is designed around your body composition and health goals — not a one-size-fits-all approach. Combining aesthetic IV drips, nutritional guidance and targeted treatment protocols, we support sustainable fat loss alongside the strength and performance work you\'re already doing at Maddog.',
+    image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=75',
+    body: "Our medical slimming programme is designed around your body composition and health goals — not a one-size-fits-all approach. Combining aesthetic IV drips, nutritional guidance and targeted treatment protocols, we support sustainable fat loss alongside the strength and performance work you're already doing at Maddog.",
     bullets: ['Body composition assessment', 'Aesthetic & slimming drips', 'Personalised treatment plans', 'Progress tracking'],
     prices: ['Programmes from R500'],
   },
@@ -119,9 +110,8 @@ const IV_DRIPS = [
     id: 'peptide',
     tag: 'Performance Medicine',
     name: 'Peptide Therapy',
-    emoji: '🧬',
-    gradient: 'linear-gradient(160deg, #0A100A 0%, #0D1A10 100%)',
-    body: 'Peptide therapy represents the cutting edge of performance and recovery medicine. Specific peptides support muscle growth, fat metabolism, sleep quality and cellular repair at a biological level. All protocols are discussed and administered under medical supervision. Enquire directly for a consultation.',
+    image: 'https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&w=800&q=75',
+    body: "Peptide therapy represents the cutting edge of performance and recovery medicine. Specific peptides support muscle growth, fat metabolism, sleep quality and cellular repair at a biological level. All protocols are discussed and administered under medical supervision. Enquire directly for a consultation.",
     bullets: ['Administered under medical supervision', 'Performance & recovery protocols', 'Sleep & hormone optimisation', 'Private consultation required'],
     prices: ['Enquire for pricing'],
   },
@@ -134,41 +124,66 @@ function fmt12h(t) {
   return `${hr % 12 || 12}:${m}${hr < 12 ? 'am' : 'pm'}`
 }
 
-function DisciplineCard({ card }) {
-  const [open, setOpen] = useState(false)
+// ── Photo tile — just image + title ──────────────────────────────
+function PhotoCard({ card, onTap }) {
   return (
-    <div className="cp-brochure-card">
-      <div
-        className="cp-brochure-hero"
-        style={{ background: card.gradient }}
-      >
-        <span className="cp-brochure-emoji">{card.emoji}</span>
-        <div>
-          <div className="cp-brochure-tag">{card.tag}</div>
-          <div className="cp-brochure-name">{card.name}</div>
-        </div>
+    <button
+      className="cp-photo-card"
+      onClick={() => onTap(card)}
+      aria-label={`Learn about ${card.name}`}
+      style={{ backgroundImage: `url(${card.image})` }}
+    >
+      <div className="cp-photo-card-overlay">
+        <div className="cp-photo-card-tag">{card.tag}</div>
+        <div className="cp-photo-card-name">{card.name}</div>
       </div>
-      <div className="cp-brochure-body">
-        <p className="cp-brochure-desc">{card.body}</p>
-        {open && (
-          <ul className="cp-brochure-list">
-            {card.bullets.map(b => <li key={b}>{b}</li>)}
-          </ul>
-        )}
-        {card.prices && (
-          <div className="cp-brochure-prices">
-            {card.prices.map(p => (
-              <span key={p} className="cp-brochure-price-chip">{p}</span>
-            ))}
+    </button>
+  )
+}
+
+// ── Bottom sheet detail modal ─────────────────────────────────────
+function DetailSheet({ card, onClose }) {
+  // Prevent body scroll while sheet is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = '' }
+  }, [])
+
+  return (
+    <div className="cp-sheet-backdrop" onClick={onClose} role="dialog" aria-modal="true" aria-label={card.name}>
+      <div className="cp-sheet" onClick={e => e.stopPropagation()}>
+
+        {/* Photo header */}
+        <div className="cp-sheet-hero" style={{ backgroundImage: `url(${card.image})` }}>
+          <button className="cp-sheet-close" onClick={onClose} aria-label="Close">✕</button>
+          <div className="cp-sheet-hero-body">
+            <div className="cp-sheet-tag">{card.tag}</div>
+            <div className="cp-sheet-name">{card.name}</div>
           </div>
-        )}
-        <button
-          className="cp-brochure-toggle"
-          onClick={() => setOpen(v => !v)}
-          aria-expanded={open}
-        >
-          {open ? 'Show less ↑' : 'What\'s included ↓'}
-        </button>
+        </div>
+
+        {/* Scrollable content */}
+        <div className="cp-sheet-body">
+          <p className="cp-sheet-desc">{card.body}</p>
+
+          {card.bullets?.length > 0 && (
+            <ul className="cp-sheet-bullets">
+              {card.bullets.map(b => <li key={b}>{b}</li>)}
+            </ul>
+          )}
+
+          {card.prices?.length > 0 && (
+            <div className="cp-sheet-prices">
+              {card.prices.map(p => (
+                <span key={p} className="cp-sheet-price-chip">{p}</span>
+              ))}
+            </div>
+          )}
+
+          <Link to="/book" className="cp-sheet-book-btn" onClick={onClose}>
+            Book Now →
+          </Link>
+        </div>
       </div>
     </div>
   )
@@ -176,6 +191,7 @@ function DisciplineCard({ card }) {
 
 export default function Explore() {
   const [deals, setDeals] = useState([])
+  const [activeCard, setActiveCard] = useState(null)
   const todayName = DAY_NAMES[new Date().getDay()]
 
   useEffect(() => {
@@ -210,21 +226,21 @@ export default function Explore() {
         </p>
       </div>
 
-      {/* ── Combat Sports ── */}
+      {/* ── Training ── */}
       <div className="cp-section">
         <div className="cp-section-tag">Training</div>
-        <h2 className="cp-section-title">Combat Sports & Fitness</h2>
-        <div className="cp-brochure-grid">
-          {DISCIPLINES.map(d => <DisciplineCard key={d.id} card={d} />)}
+        <h2 className="cp-section-title">Combat Sports &amp; Fitness</h2>
+        <div className="cp-photo-grid">
+          {DISCIPLINES.map(d => <PhotoCard key={d.id} card={d} onTap={setActiveCard} />)}
         </div>
       </div>
 
-      {/* ── Recovery Suite ── */}
+      {/* ── Recovery ── */}
       <div className="cp-section">
         <div className="cp-section-tag">Recovery</div>
         <h2 className="cp-section-title">Recovery Suite</h2>
-        <div className="cp-brochure-grid">
-          {WELLNESS.map(d => <DisciplineCard key={d.id} card={d} />)}
+        <div className="cp-photo-grid">
+          {WELLNESS.map(d => <PhotoCard key={d.id} card={d} onTap={setActiveCard} />)}
         </div>
       </div>
 
@@ -232,8 +248,8 @@ export default function Explore() {
       <div className="cp-section">
         <div className="cp-section-tag">Wellness</div>
         <h2 className="cp-section-title">IV Therapy &amp; Performance Medicine</h2>
-        <div className="cp-brochure-grid">
-          {IV_DRIPS.map(d => <DisciplineCard key={d.id} card={d} />)}
+        <div className="cp-photo-grid">
+          {IV_DRIPS.map(d => <PhotoCard key={d.id} card={d} onTap={setActiveCard} />)}
         </div>
       </div>
 
@@ -330,6 +346,11 @@ export default function Explore() {
           ))}
         </div>
       </div>
+
+      {/* ── Bottom sheet detail ── */}
+      {activeCard && (
+        <DetailSheet card={activeCard} onClose={() => setActiveCard(null)} />
+      )}
 
     </div>
   )

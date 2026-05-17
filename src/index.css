@@ -897,81 +897,205 @@ textarea { resize: vertical; }
   gap: 12px;
 }
 
-/* ── Explore — Brochure card ─────────────────────────────────── */
-.cp-brochure-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
+/* ── Explore — Photo tile grid ───────────────────────────────── */
+.cp-photo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.cp-photo-card {
+  position: relative;
+  height: 150px;
+  border-radius: var(--r-md);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  background-color: var(--dark);
+  background-size: cover;
+  background-position: center;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .15s, box-shadow .15s;
 }
+.cp-photo-card:active { transform: scale(.97); }
 
-.cp-brochure-hero {
-  padding: 20px 18px 16px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.cp-brochure-emoji { font-size: 36px; line-height: 1; flex-shrink: 0; }
-.cp-brochure-tag { font-size: 9px; font-weight: 700; letter-spacing: .25em; text-transform: uppercase; color: rgba(255,255,255,.45); margin-bottom: 4px; }
-.cp-brochure-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: .04em; color: #fff; line-height: 1.05; }
-
-.cp-brochure-body { padding: 16px 18px 18px; }
-.cp-brochure-desc { font-size: 13px; line-height: 1.7; color: var(--text-2); margin-bottom: 12px; }
-
-.cp-brochure-list {
-  list-style: none;
+/* Gradient overlay so text is always readable */
+.cp-photo-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.72) 100%);
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 14px;
-  padding-left: 0;
+  justify-content: flex-end;
+  padding: 10px 11px;
 }
-.cp-brochure-list li {
-  font-size: 12px;
-  color: var(--text-2);
+.cp-photo-card-tag {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 3px;
+  line-height: 1;
+}
+.cp-photo-card-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 17px;
+  letter-spacing: .04em;
+  color: #fff;
+  line-height: 1.05;
+}
+
+/* ── Bottom sheet ─────────────────────────────────────────────── */
+.cp-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  animation: cp-fade-in .2s ease;
+}
+@keyframes cp-fade-in { from { opacity: 0 } to { opacity: 1 } }
+
+.cp-sheet {
+  width: 100%;
+  max-height: 90dvh;
+  background: var(--surface);
+  border-radius: 24px 24px 0 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: cp-slide-up .25s cubic-bezier(.32,1,.32,1);
+}
+@keyframes cp-slide-up {
+  from { transform: translateY(100%) }
+  to   { transform: translateY(0)    }
+}
+
+.cp-sheet-hero {
+  position: relative;
+  height: 220px;
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+.cp-sheet-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.25) 0%, rgba(0,0,0,.70) 100%);
+}
+.cp-sheet-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.5);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  z-index: 1;
+  -webkit-tap-highlight-color: transparent;
 }
-.cp-brochure-list li::before {
+.cp-sheet-hero-body {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 16px 20px;
+  z-index: 1;
+}
+.cp-sheet-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+.cp-sheet-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 30px;
+  letter-spacing: .04em;
+  color: #fff;
+  line-height: 1.05;
+}
+
+.cp-sheet-body {
+  padding: 20px 20px 32px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+}
+.cp-sheet-desc {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-2);
+  margin-bottom: 16px;
+}
+.cp-sheet-bullets {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.cp-sheet-bullets li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text);
+}
+.cp-sheet-bullets li::before {
   content: '·';
   color: var(--gold);
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1;
   flex-shrink: 0;
 }
-
-.cp-brochure-prices {
+.cp-sheet-prices {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 12px;
+  margin-bottom: 20px;
 }
-.cp-brochure-price-chip {
+.cp-sheet-price-chip {
   display: inline-block;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: .06em;
   background: var(--gold-dim);
   color: var(--gold-dark);
   border: 1px solid var(--gold-mid);
   border-radius: 20px;
-  padding: 4px 12px;
+  padding: 5px 14px;
 }
-
-.cp-brochure-toggle {
-  background: none;
-  border: none;
-  font-size: 11px;
-  font-weight: 600;
+.cp-sheet-book-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  background: var(--gold);
+  color: #0D0D0D;
+  font-weight: 700;
+  font-size: 14px;
   letter-spacing: .06em;
-  color: var(--text-3);
-  padding: 0;
-  cursor: pointer;
+  padding: 14px 16px;
+  border-radius: var(--r-sm);
+  text-decoration: none;
+  margin-top: 8px;
   -webkit-tap-highlight-color: transparent;
-  text-transform: uppercase;
+  transition: opacity .15s;
 }
+.cp-sheet-book-btn:hover { opacity: .88; color: #0D0D0D; }
 
 /* ── Membership banner (Dashboard & BookSession) ─────────────── */
 .cp-membership-banner {
