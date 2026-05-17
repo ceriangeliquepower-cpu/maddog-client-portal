@@ -263,8 +263,11 @@ textarea { resize: vertical; }
 /* ── Home Header ─────────────────────────────────────────────── */
 .cp-home-hero {
   background: var(--dark);
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
   margin: -20px -16px 0;
-  padding: 32px 20px 28px;
+  padding: 44px 20px 36px;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -273,12 +276,34 @@ textarea { resize: vertical; }
   text-align: center;
 }
 
+/* Dark gradient overlay so text stays readable over the photo */
+.cp-home-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(8,8,8,.72) 0%,
+    rgba(8,8,8,.55) 50%,
+    rgba(8,8,8,.80) 100%
+  );
+  z-index: 0;
+}
+
+/* Gold bottom line */
 .cp-home-hero::after {
   content: '';
   position: absolute;
   bottom: 0; left: 0; right: 0;
   height: 3px;
   background: var(--gold);
+  z-index: 1;
+}
+
+/* All direct children must sit above the overlay */
+.cp-home-hero > * {
+  position: relative;
+  z-index: 1;
 }
 
 .cp-home-logo {

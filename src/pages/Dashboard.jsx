@@ -5,6 +5,8 @@ import { useAuth } from '../hooks/useAuth'
 
 const TODAY = new Date().toISOString().slice(0, 10)
 
+const HERO_URL = 'https://mthjfihctiluqllpegnr.supabase.co/storage/v1/object/public/media/hero.jpg'
+
 function fmt12(t) {
   if (!t) return '—'
   const [h, m] = t.slice(0, 5).split(':')
@@ -109,7 +111,7 @@ export default function Dashboard() {
     <div className="cp-page">
 
       {/* ── Dark hero header ── */}
-      <div className="cp-home-hero">
+      <div className="cp-home-hero" style={{ backgroundImage: `url(${HERO_URL})` }}>
         <img
           src="/logo-icon.png"
           alt="Maddog Performance Institute"
