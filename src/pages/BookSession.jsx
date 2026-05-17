@@ -10,8 +10,7 @@ const CATEGORIES = [
     id: 'mma',
     label: 'MMA & Combat Sports',
     sub: 'MMA · BJJ · Kickboxing · Boxing · Boxing Fitness',
-    emoji: '🥊',
-    gradient: 'linear-gradient(160deg, #1A0A0A 0%, #2D1010 100%)',
+    image: 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?auto=format&fit=crop&w=600&q=75',
     dbCats: ['class', 'mma', 'bjj', 'kickboxing', 'boxing', 'boxing_fitness'],
     isTraining: true,
   },
@@ -19,8 +18,7 @@ const CATEGORIES = [
     id: 'pt',
     label: 'Personal Training',
     sub: '1-on-1 coaching sessions',
-    emoji: '🏋️',
-    gradient: 'linear-gradient(160deg, #0A1408 0%, #142010 100%)',
+    image: 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=600&q=75',
     dbCats: ['personal_training', 'pt'],
     isTraining: true,
   },
@@ -28,8 +26,7 @@ const CATEGORIES = [
     id: 'powerlifting',
     label: 'Powerlifting',
     sub: 'Squat · Bench · Deadlift',
-    emoji: '🏆',
-    gradient: 'linear-gradient(160deg, #100A08 0%, #1E1410 100%)',
+    image: 'https://images.unsplash.com/photo-1534367610401-9f5ed68180aa?auto=format&fit=crop&w=600&q=75',
     dbCats: ['powerlifting'],
     isTraining: true,
   },
@@ -37,8 +34,7 @@ const CATEGORIES = [
     id: 'physio',
     label: 'Physio',
     sub: 'Injury assessment & rehab',
-    emoji: '🩺',
-    gradient: 'linear-gradient(160deg, #080E1A 0%, #0D1628 100%)',
+    image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=600&q=75',
     dbCats: ['physio'],
     isTraining: false,
   },
@@ -46,8 +42,7 @@ const CATEGORIES = [
     id: 'assessment',
     label: 'Assessment',
     sub: 'Private consultations',
-    emoji: '📋',
-    gradient: 'linear-gradient(160deg, #10080A 0%, #1C0D12 100%)',
+    image: 'https://images.unsplash.com/photo-1551190822-a9333d879b1f?auto=format&fit=crop&w=600&q=75',
     dbCats: ['appointment', 'consultation', 'assessment'],
     isTraining: false,
   },
@@ -55,8 +50,7 @@ const CATEGORIES = [
     id: 'recovery',
     label: 'Recovery',
     sub: 'Sauna · Ice Bath · Contrast',
-    emoji: '❄️',
-    gradient: 'linear-gradient(160deg, #081018 0%, #0C1A24 100%)',
+    image: 'https://images.unsplash.com/photo-1608138278547-a5e1b37cca9d?auto=format&fit=crop&w=600&q=75',
     dbCats: ['recovery', 'contrast', 'sauna', 'cold_plunge'],
     isTraining: false,
   },
@@ -64,8 +58,7 @@ const CATEGORIES = [
     id: 'wellness',
     label: 'Wellness & IV Therapy',
     sub: 'IV Drips · Slimming · Peptides',
-    emoji: '💧',
-    gradient: 'linear-gradient(160deg, #0A0818 0%, #150D28 100%)',
+    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=600&q=75',
     dbCats: ['wellness', 'iv', 'iv_therapy', 'slimming', 'peptide'],
     isTraining: false,
   },
@@ -457,10 +450,10 @@ export default function BookSession() {
               <button
                 key={cat.id}
                 className={`cp-cat-card${selectedCategory?.id === cat.id ? ' selected' : ''}`}
+                style={{ backgroundImage: `url(${cat.image})` }}
                 onClick={() => { setSelectedCategory(cat); setSelectedService(null) }}
               >
-                <div className="cp-cat-hero" style={{ background: cat.gradient }}>
-                  <span className="cp-cat-emoji">{cat.emoji}</span>
+                <div className="cp-cat-overlay">
                   <div className="cp-cat-name">{cat.label}</div>
                   <div className="cp-cat-sub">{cat.sub}</div>
                 </div>
