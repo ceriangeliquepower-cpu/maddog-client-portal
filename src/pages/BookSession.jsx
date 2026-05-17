@@ -9,11 +9,11 @@ const CATEGORIES = [
   {
     id: 'mma',
     label: 'MMA & Combat Sports',
-    sub: 'MMA · BJJ · Kickboxing · Boxing',
+    sub: 'MMA · BJJ · Kickboxing · Boxing · Boxing Fitness',
     emoji: '🥊',
     gradient: 'linear-gradient(160deg, #1A0A0A 0%, #2D1010 100%)',
-    dbCats: ['class', 'mma', 'bjj', 'kickboxing', 'boxing'],
-    highlights: ['R800 / month', 'R1 400 Unlimited', 'R150 drop-in'],
+    dbCats: ['class', 'mma', 'bjj', 'kickboxing', 'boxing', 'boxing_fitness'],
+    isTraining: true,
   },
   {
     id: 'pt',
@@ -22,7 +22,16 @@ const CATEGORIES = [
     emoji: '🏋️',
     gradient: 'linear-gradient(160deg, #0A1408 0%, #142010 100%)',
     dbCats: ['personal_training', 'pt'],
-    highlights: ['From R450 / session'],
+    isTraining: true,
+  },
+  {
+    id: 'powerlifting',
+    label: 'Powerlifting',
+    sub: 'Squat · Bench · Deadlift',
+    emoji: '🏆',
+    gradient: 'linear-gradient(160deg, #100A08 0%, #1E1410 100%)',
+    dbCats: ['powerlifting'],
+    isTraining: true,
   },
   {
     id: 'physio',
@@ -31,16 +40,16 @@ const CATEGORIES = [
     emoji: '🩺',
     gradient: 'linear-gradient(160deg, #080E1A 0%, #0D1628 100%)',
     dbCats: ['physio'],
-    highlights: ['From R650 / session'],
+    isTraining: false,
   },
   {
-    id: 'appointments',
-    label: 'Appointments',
+    id: 'assessment',
+    label: 'Assessment',
     sub: 'Private consultations',
     emoji: '📋',
     gradient: 'linear-gradient(160deg, #10080A 0%, #1C0D12 100%)',
-    dbCats: ['appointment', 'consultation'],
-    highlights: ['Free consultation'],
+    dbCats: ['appointment', 'consultation', 'assessment'],
+    isTraining: false,
   },
   {
     id: 'recovery',
@@ -49,7 +58,7 @@ const CATEGORIES = [
     emoji: '❄️',
     gradient: 'linear-gradient(160deg, #081018 0%, #0C1A24 100%)',
     dbCats: ['recovery', 'contrast', 'sauna', 'cold_plunge'],
-    highlights: ['Post-training from R80', 'General from R270'],
+    isTraining: false,
   },
   {
     id: 'wellness',
@@ -58,9 +67,21 @@ const CATEGORIES = [
     emoji: '💧',
     gradient: 'linear-gradient(160deg, #0A0818 0%, #150D28 100%)',
     dbCats: ['wellness', 'iv', 'iv_therapy', 'slimming', 'peptide'],
-    highlights: ['IV Drips from R350', 'Slimming from R500'],
+    isTraining: false,
   },
 ]
+
+// Virtual trial service — not stored in DB, handled specially at booking time
+const TRIAL_SERVICE = {
+  id: '__trial__',
+  name: 'Trial Class',
+  category: 'trial',
+  duration_minutes: 60,
+  price_cents: 0,
+  description: 'Your first session at Maddog — come meet the team, try the training, no commitment required.',
+}
+
+const TRAINING_MEMBERSHIP_TYPES = ['training', 'training_recovery']
 
 function genRef() {
   return 'MDB-' + Math.random().toString(36).slice(2, 7).toUpperCase()
@@ -97,36 +118,37 @@ export default function BookSession() {
   const pfFormRef = useRef(null)
 
   const [step, setStep]                         = useState(0)
+  const [member, setMember]                     = useState(null)
   const [services, setServices]                 = useState([])
   const [practitioners, setPractitioners]       = useState([])
   const [availability, setAvailability]         = useState([])
   const [existingBookings, setExistingBookings] = useState([])
+  const [linkedPractIds, setLinkedPractIds]     = useState(null) // null = show all
 
-  const [selectedCategory, setSelectedCategory]         = useState(null)
-  const [selectedService, setSelectedService]           = useState(null)
-  const [selectedPractitioner, setSelectedPractitioner] = useState(null)
-  const [selectedDate, setSelectedDate]                 = useState(null)
-  const [selectedTime, setSelectedTime]                 = useState(null)
-  const [notes, setNotes]                               = useState('')
+  const [selectedCategory,    setSelectedCategory]    = useState(null)
+  const [selectedService,     setSelectedService]     = useState(null)
+  const [selectedPractitioner,setSelectedPractitioner]= useState(null)
+  const [selectedDate,        setSelectedDate]        = useState(null)
+  const [selectedTime,        setSelectedTime]        = useState(null)
+  const [notes,               setNotes]               = useState('')
 
-  const [loading, setLoading]       = useState(true)
+  const [loading,    setLoading]    = useState(true)
   const [submitting, setSubmitting] = useState(false)
-  const [toast, setToast]           = useState('')
+  const [toast,      setToast]      = useState('')
 
-  // PayFast redirect state
   const [pfFields, setPfFields] = useState(null)
-  const [pfUrl, setPfUrl]       = useState('')
-
-  // Free booking done state
-  const [done, setDone]           = useState(false)
+  const [pfUrl,    setPfUrl]    = useState('')
+  const [done,     setDone]     = useState(false)
   const [bookingRef, setBookingRef] = useState('')
 
   const showToast = msg => { setToast(msg); setTimeout(() => setToast(''), 3500) }
 
+  // Load member + services + practitioners on mount
   useEffect(() => {
     const load = async () => {
       setLoading(true)
-      const [sRes, pRes] = await Promise.all([
+      const [mRes, sRes, pRes] = await Promise.all([
+        supabase.from('members').select('*').eq('email', user.email).maybeSingle(),
         supabase.from('services')
           .select('id, name, category, duration_minutes, price_cents, description')
           .eq('active', true).order('category').order('name'),
@@ -134,12 +156,30 @@ export default function BookSession() {
           .select('id, name, role, color, photo_url')
           .eq('active', true).order('display_order'),
       ])
+      setMember(mRes.data)
       setServices(sRes.data ?? [])
       setPractitioners(pRes.data ?? [])
       setLoading(false)
     }
     load()
-  }, [])
+  }, [user])
+
+  // When service selected → load which practitioners offer it
+  useEffect(() => {
+    if (!selectedService || selectedService.id === '__trial__') {
+      setLinkedPractIds(null)
+      return
+    }
+    const load = async () => {
+      const { data } = await supabase
+        .from('practitioner_services')
+        .select('practitioner_id')
+        .eq('service_id', selectedService.id)
+      const ids = (data ?? []).map(r => r.practitioner_id)
+      setLinkedPractIds(ids.length > 0 ? ids : null) // null = show all if none linked yet
+    }
+    load()
+  }, [selectedService])
 
   // Load availability + existing bookings when practitioner selected
   useEffect(() => {
@@ -166,10 +206,23 @@ export default function BookSession() {
     }
   }, [pfFields])
 
+  // Membership status derived values
+  const hasActiveMembership =
+    member &&
+    TRAINING_MEMBERSHIP_TYPES.includes(member.membership_type) &&
+    member.membership_status === 'active'
+
+  const isTrialMember = member?.membership_status === 'trial'
+
   // Services filtered to selected category
   const filteredServices = selectedCategory
     ? services.filter(s => selectedCategory.dbCats.includes(s.category?.toLowerCase()))
     : []
+
+  // Practitioners filtered by linked service (or show all)
+  const displayPractitioners = linkedPractIds
+    ? practitioners.filter(p => linkedPractIds.includes(p.id))
+    : practitioners
 
   const availableDates = nextDates(21).filter(d => {
     const dow = d.getDay()
@@ -221,6 +274,21 @@ export default function BookSession() {
     const endTime  = `${String(Math.floor(endMins/60)).padStart(2,'0')}:${String(endMins%60).padStart(2,'0')}:00`
     const clientName = user.user_metadata?.full_name || user.email.split('@')[0]
 
+    const isTrial = selectedService.id === '__trial__'
+
+    // Determine payment details based on membership
+    let paymentStatus = 'unpaid'
+    let amountCents   = selectedService.price_cents || 0
+    let bookingType   = isTrial ? 'trial' : (selectedService.category || 'class')
+
+    if (isTrial) {
+      paymentStatus = 'free_trial'
+      amountCents   = 0
+    } else if (selectedCategory?.isTraining && hasActiveMembership) {
+      paymentStatus = 'membership'
+      amountCents   = 0
+    }
+
     const { error } = await supabase.from('bookings').insert({
       booking_ref:     ref,
       booking_date:    toDateStr(selectedDate),
@@ -228,12 +296,12 @@ export default function BookSession() {
       end_time:        endTime,
       client_name:     clientName,
       client_email:    user.email,
-      service_id:      selectedService.id,
+      service_id:      isTrial ? null : selectedService.id,
       practitioner_id: selectedPractitioner.id,
-      booking_type:    selectedService.category,
-      amount_cents:    selectedService.price_cents || 0,
+      booking_type:    bookingType,
+      amount_cents:    amountCents,
       status:          'pending',
-      payment_status:  'unpaid',
+      payment_status:  paymentStatus,
       notes:           notes.trim() || null,
     })
 
@@ -245,14 +313,15 @@ export default function BookSession() {
 
     setBookingRef(ref)
 
-    if (selectedService.price_cents > 0) {
+    // Only go to PayFast if there's an actual amount to pay
+    if (amountCents > 0) {
       try {
         const res = await fetch('/api/payfast-payment', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             booking_ref:  ref,
-            amount_cents: selectedService.price_cents,
+            amount_cents: amountCents,
             service_name: selectedService.name,
             client_name:  clientName,
             client_email: user.email,
@@ -296,7 +365,9 @@ export default function BookSession() {
         <h2 className="cp-done-title">Booking Received</h2>
         <div className="cp-done-ref">{bookingRef}</div>
         <p className="cp-done-sub">
-          We'll confirm your booking within 24 hours. You'll receive an email confirmation shortly.
+          {selectedService?.id === '__trial__'
+            ? "Welcome to Maddog! We'll confirm your trial class within 24 hours."
+            : "We'll confirm your booking within 24 hours. You'll receive a confirmation shortly."}
         </p>
         <button className="cp-btn-primary" onClick={() => navigate('/bookings')}>View My Bookings</button>
       </div>
@@ -337,11 +408,6 @@ export default function BookSession() {
                   <div className="cp-cat-name">{cat.label}</div>
                   <div className="cp-cat-sub">{cat.sub}</div>
                 </div>
-                <div className="cp-cat-prices">
-                  {cat.highlights.map(h => (
-                    <div key={h} className="cp-cat-price">{h}</div>
-                  ))}
-                </div>
               </button>
             ))}
           </div>
@@ -370,7 +436,62 @@ export default function BookSession() {
             Select a service
           </div>
 
-          {filteredServices.length === 0 ? (
+          {/* Membership status banner — training categories only */}
+          {selectedCategory?.isTraining && (
+            <div className={`cp-membership-banner${hasActiveMembership ? ' active' : isTrialMember ? ' trial' : ' guest'}`}>
+              {hasActiveMembership
+                ? '✓ Your training membership covers these classes'
+                : isTrialMember
+                  ? '🎯 You have a trial class — book your first session below'
+                  : '👋 Not a member yet? Book a free trial class to experience Maddog'}
+            </div>
+          )}
+
+          {/* Trial class card — shown for non-active-members on training categories */}
+          {selectedCategory?.isTraining && !hasActiveMembership && (
+            <button
+              className={`cp-service-card cp-trial-card${selectedService?.id === '__trial__' ? ' selected' : ''}`}
+              onClick={() => setSelectedService(TRIAL_SERVICE)}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="cp-service-name">🎯 Trial Class</div>
+                <span className="cp-trial-badge">FREE</span>
+              </div>
+              <div className="cp-service-desc">
+                Your first session at Maddog — come meet the team and experience the training. No commitment required.
+              </div>
+              <div className="cp-service-meta">60 min · First class</div>
+            </button>
+          )}
+
+          {/* Regular services */}
+          {selectedCategory?.isTraining && !hasActiveMembership ? (
+            // Non-members: show regular services as "members only" reference
+            filteredServices.length > 0 && (
+              <div style={{ marginTop: 16 }}>
+                <div style={{ fontSize: 11, color: 'var(--text-3)', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>
+                  Member Classes
+                </div>
+                {filteredServices.map(s => (
+                  <div key={s.id} className="cp-service-card cp-service-locked">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div className="cp-service-name" style={{ opacity: 0.5 }}>{s.name}</div>
+                      <span className="cp-locked-badge">Members only</span>
+                    </div>
+                    {s.duration_minutes > 0 && (
+                      <div className="cp-service-meta" style={{ opacity: 0.4 }}>{s.duration_minutes} min</div>
+                    )}
+                  </div>
+                ))}
+                <p style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 12, textAlign: 'center' }}>
+                  Ready to join?{' '}
+                  <a href="https://wa.me/27634421690" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold)' }}>
+                    Contact us on WhatsApp
+                  </a>
+                </p>
+              </div>
+            )
+          ) : filteredServices.length === 0 ? (
             <div className="cp-empty">
               <p>No services available for this category yet.</p>
               <p style={{ fontSize: 12, marginTop: 8 }}>Please contact us to book directly.</p>
@@ -382,14 +503,16 @@ export default function BookSession() {
                 className={`cp-service-card${selectedService?.id === s.id ? ' selected' : ''}`}
                 onClick={() => setSelectedService(s)}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-                  <div className="cp-service-name">{s.name}</div>
-                  <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 16, color: 'var(--gold)', whiteSpace: 'nowrap' }}>
-                    {s.price_cents > 0 ? fmtPrice(s.price_cents) : 'Free'}
-                  </div>
-                </div>
-                {s.duration_minutes && <div className="cp-service-meta">{s.duration_minutes} min</div>}
+                <div className="cp-service-name">{s.name}</div>
+                {s.duration_minutes > 0 && (
+                  <div className="cp-service-meta">{s.duration_minutes} min</div>
+                )}
                 {s.description && <div className="cp-service-desc">{s.description}</div>}
+                {selectedCategory?.isTraining && hasActiveMembership && (
+                  <div style={{ fontSize: 11, color: 'var(--green)', fontWeight: 600, marginTop: 6 }}>
+                    ✓ Covered by your membership
+                  </div>
+                )}
               </button>
             ))
           )}
@@ -411,26 +534,35 @@ export default function BookSession() {
       {/* ── Step 2 — Practitioner ── */}
       {step === 2 && (
         <div className="cp-book-step">
-          <div className="cp-book-sublabel" style={{ marginBottom: 16 }}>Choose your practitioner</div>
-          <div className="cp-pract-grid">
-            {practitioners.map(p => (
-              <button
-                key={p.id}
-                className={`cp-pract-card${selectedPractitioner?.id === p.id ? ' selected' : ''}`}
-                onClick={() => { setSelectedPractitioner(p); setSelectedDate(null); setSelectedTime(null) }}
-              >
-                {p.photo_url ? (
-                  <img src={p.photo_url} alt={p.name} className="cp-pract-photo" />
-                ) : (
-                  <div className="cp-pract-avatar" style={{ background: p.color || '#C9A84C' }}>
-                    {p.name?.charAt(0)?.toUpperCase()}
-                  </div>
-                )}
-                <div className="cp-pract-name">{p.name}</div>
-                <div className="cp-pract-role">{p.role || '—'}</div>
-              </button>
-            ))}
+          <div className="cp-book-sublabel" style={{ marginBottom: 16 }}>
+            {selectedCategory?.isTraining ? 'Choose your trainer' : 'Choose your practitioner'}
           </div>
+          {displayPractitioners.length === 0 ? (
+            <div className="cp-empty">
+              <p>No staff available for this service yet.</p>
+              <p style={{ fontSize: 12, marginTop: 8 }}>Please contact us to book directly.</p>
+            </div>
+          ) : (
+            <div className="cp-pract-grid">
+              {displayPractitioners.map(p => (
+                <button
+                  key={p.id}
+                  className={`cp-pract-card${selectedPractitioner?.id === p.id ? ' selected' : ''}`}
+                  onClick={() => { setSelectedPractitioner(p); setSelectedDate(null); setSelectedTime(null) }}
+                >
+                  {p.photo_url ? (
+                    <img src={p.photo_url} alt={p.name} className="cp-pract-photo" />
+                  ) : (
+                    <div className="cp-pract-avatar" style={{ background: p.color || '#C9A84C' }}>
+                      {p.name?.charAt(0)?.toUpperCase()}
+                    </div>
+                  )}
+                  <div className="cp-pract-name">{p.name}</div>
+                  <div className="cp-pract-role">{p.role || '—'}</div>
+                </button>
+              ))}
+            </div>
+          )}
           <div className="cp-step-footer">
             <button className="cp-btn-secondary" onClick={() => setStep(1)}>← Back</button>
             <button
@@ -514,7 +646,7 @@ export default function BookSession() {
               <span>{selectedCategory?.label}</span>
             </div>
             <div className="cp-confirm-row">
-              <span className="cp-confirm-label">Service</span>
+              <span className="cp-confirm-label">Session</span>
               <span>{selectedService?.name}</span>
             </div>
             <div className="cp-confirm-row">
@@ -533,12 +665,23 @@ export default function BookSession() {
               <span className="cp-confirm-label">Duration</span>
               <span>{selectedService?.duration_minutes || 60} min</span>
             </div>
-            <div className="cp-confirm-row" style={{ background: 'rgba(201,168,76,.06)' }}>
-              <span className="cp-confirm-label">Total</span>
-              <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 20, color: 'var(--gold)' }}>
-                {selectedService?.price_cents > 0 ? fmtPrice(selectedService.price_cents) : 'Free'}
-              </span>
-            </div>
+            {/* Only show payment row if there's actually a charge */}
+            {selectedService?.price_cents > 0 && selectedService?.id !== '__trial__' && !hasActiveMembership && (
+              <div className="cp-confirm-row" style={{ background: 'rgba(201,168,76,.06)' }}>
+                <span className="cp-confirm-label">Total</span>
+                <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 20, color: 'var(--gold)' }}>
+                  {fmtPrice(selectedService.price_cents)}
+                </span>
+              </div>
+            )}
+            {(selectedService?.id === '__trial__' || (selectedCategory?.isTraining && hasActiveMembership)) && (
+              <div className="cp-confirm-row" style={{ background: 'rgba(45,158,95,.06)' }}>
+                <span className="cp-confirm-label">Cost</span>
+                <span style={{ color: 'var(--green)', fontWeight: 600, fontSize: 14 }}>
+                  {selectedService?.id === '__trial__' ? '✓ Free — trial class' : '✓ Covered by membership'}
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="cp-field" style={{ marginTop: 16 }}>
@@ -548,13 +691,13 @@ export default function BookSession() {
               rows={3}
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              placeholder="Any injuries, special requests or info for your practitioner…"
+              placeholder="Any injuries, special requests or info for your trainer…"
             />
           </div>
 
-          {selectedService?.price_cents > 0 ? (
+          {selectedService?.price_cents > 0 && !hasActiveMembership && selectedService?.id !== '__trial__' ? (
             <p className="cp-confirm-note">
-              Clicking <strong>Pay Now</strong> will take you to PayFast's secure payment page. Your booking is held for 15 minutes.
+              Clicking <strong>Pay Now</strong> will take you to PayFast's secure payment page.
             </p>
           ) : (
             <p className="cp-confirm-note">
@@ -567,7 +710,7 @@ export default function BookSession() {
             <button className="cp-btn-primary" style={{ flex: 1 }} onClick={handleConfirm} disabled={submitting}>
               {submitting
                 ? 'Processing…'
-                : selectedService?.price_cents > 0
+                : selectedService?.price_cents > 0 && !hasActiveMembership && selectedService?.id !== '__trial__'
                   ? `Pay ${fmtPrice(selectedService.price_cents)}`
                   : 'Confirm Booking'}
             </button>

@@ -6,21 +6,28 @@ const TODAY = new Date().toISOString().slice(0, 10)
 
 export default function Profile() {
   const { user, signOut } = useAuth()
-  const [member,  setMember]  = useState(null)
-  const [form,    setForm]    = useState({ name: '', phone: '', emergency_contact: '', emergency_phone: '' })
-  const [stats,   setStats]   = useState({ total: 0, attended: 0, cancelled: 0, spent: 0 })
-  const [loading, setLoading] = useState(true)
-  const [saving,  setSaving]  = useState(false)
-  const [toast,   setToast]   = useState('')
+  const [member,    setMember]    = useState(null)
+  const [form,      setForm]      = useState({ name: '', phone: '', emergency_contact: '', emergency_phone: '' })
+  const [stats,     setStats]     = useState({ total: 0, attended: 0, cancelled: 0, spent: 0 })
+  const [checkIns,  setCheckIns]  = useState([])
+  const [loading,   setLoading]   = useState(true)
+  const [saving,    setSaving]    = useState(false)
+  const [toast,     setToast]     = useState('')
 
   const showToast = msg => { setToast(msg); setTimeout(() => setToast(''), 3000) }
 
   useEffect(() => {
     if (!user) return
     const load = async () => {
-      const [mRes, bRes] = await Promise.all([
+      const [mRes, bRes, ciRes] = await Promise.all([
         supabase.from('members').select('*').eq('email', user.email).maybeSingle(),
         supabase.from('bookings').select('status, price_paid').eq('client_email', user.email),
+        supabase
+          .from('check_ins')
+          .select('check_in_date, checked_in_at')
+          .eq('member_email', user.email)
+          .order('checked_in_at', { ascending: false })
+          .limit(10),
       ])
 
       if (mRes.data) {
@@ -41,6 +48,7 @@ export default function Profile() {
         .reduce((sum, b) => sum + (b.price_paid || 0), 0)
 
       setStats({ total: bookings.length, attended, cancelled, spent })
+      setCheckIns(ciRes.data ?? [])
       setLoading(false)
     }
     load()
@@ -111,6 +119,38 @@ export default function Profile() {
             <div className="cp-activity-label">Total spent</div>
           </div>
         </div>
+      </div>
+
+      {/* ── Attendance / Check-ins ── */}
+      <div className="cp-section">
+        <h2 className="cp-section-title">Gym Attendance</h2>
+        <div className="cp-checkin-summary">
+          <div className="cp-checkin-count">
+            <span className="cp-checkin-count-value">{checkIns.length}</span>
+            <span className="cp-checkin-count-label">Check-ins logged</span>
+          </div>
+        </div>
+        {checkIns.length > 0 ? (
+          <div className="cp-checkin-history">
+            {checkIns.slice(0, 5).map((ci, i) => (
+              <div key={i} className="cp-checkin-history-row">
+                <span className="cp-checkin-history-icon">✓</span>
+                <span className="cp-checkin-history-date">
+                  {new Date(ci.check_in_date).toLocaleDateString('en-ZA', {
+                    weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
+                  })}
+                </span>
+                {ci.checked_in_at && (
+                  <span className="cp-checkin-history-time">
+                    {new Date(ci.checked_in_at).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="cp-checkin-empty">No check-ins logged yet. Scan the QR at the gym or use the Check-in button on Home.</div>
+        )}
       </div>
 
       {/* ── Personal details ── */}

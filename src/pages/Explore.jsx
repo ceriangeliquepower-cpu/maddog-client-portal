@@ -50,6 +50,15 @@ const DISCIPLINES = [
     body: 'Boxing Fitness bridges the gap between technical boxing and full-body conditioning. No prior experience needed. Sessions focus on correct punching form, footwork and defensive habits alongside circuits that push your endurance and build real functional strength. One of the most effective fitness classes you\'ll ever take.',
     bullets: ['Punch technique & combinations', 'Footwork & head movement', 'High-intensity conditioning', 'Suitable for total beginners'],
   },
+  {
+    id: 'powerlifting',
+    tag: 'Strength Sport',
+    name: 'Powerlifting',
+    emoji: '🏆',
+    gradient: 'linear-gradient(160deg, #0A100A 0%, #111A0A 100%)',
+    body: "Maddog's Powerlifting programme is built around the three competition lifts: squat, bench press and deadlift. Coached by experienced strength athletes, the programme focuses on correct technique, progressive overload and meet preparation for those who want to compete — or simply get seriously strong.",
+    bullets: ['Squat, bench & deadlift coaching', 'Beginner to competitive programming', 'Meet preparation available', 'Open to all strength levels'],
+  },
 ]
 
 const WELLNESS = [

@@ -100,7 +100,7 @@ export default function Dashboard() {
     load()
   }, [user])
 
-  const firstName = member?.name?.split(' ')[0] || user?.email?.split('@')[0] || 'there'
+  const firstName = member?.first_name || member?.name?.split(' ')[0] || user?.email?.split('@')[0] || 'there'
 
   // next upcoming booking
   const next = upcoming[0]
@@ -269,33 +269,73 @@ export default function Dashboard() {
       </div>
 
       {/* ── Membership card ── */}
-      {member && (
+      {!loading && (
         <div className="cp-section">
           <h2 className="cp-section-title">My Membership</h2>
-          <div className="cp-membership-card">
-            <div className="cp-membership-row">
-              <span className="cp-membership-label">Status</span>
-              <span className="cp-membership-value" style={{ textTransform: 'capitalize' }}>
-                {member.membership_status?.replace(/_/g, ' ') || '—'}
-              </span>
-            </div>
-            {member.membership_type && (
-              <div className="cp-membership-row">
-                <span className="cp-membership-label">Plan</span>
-                <span className="cp-membership-value">{member.membership_type}</span>
-              </div>
-            )}
-            {member.membership_expiry && (
-              <div className="cp-membership-row">
-                <span className="cp-membership-label">Valid until</span>
-                <span className="cp-membership-value">
-                  {new Date(member.membership_expiry).toLocaleDateString('en-ZA', {
-                    day: 'numeric', month: 'long', year: 'numeric',
-                  })}
+
+          {member ? (
+            <div className="cp-membership-card">
+              {/* Status banner */}
+              <div className={`cp-membership-banner ${member.membership_status === 'active' ? 'active' : member.membership_status === 'trial' ? 'trial' : 'guest'}`}>
+                <span className="cp-membership-banner-icon">
+                  {member.membership_status === 'active' ? '✦' : member.membership_status === 'trial' ? '◷' : '⊘'}
                 </span>
+                <div>
+                  <div className="cp-membership-banner-title">
+                    {member.membership_status === 'active' ? 'Active Member' : member.membership_status === 'trial' ? 'Trial Member' : member.membership_status?.replace(/_/g, ' ')}
+                  </div>
+                  {member.membership_type && (
+                    <div className="cp-membership-banner-sub">
+                      {member.membership_type.replace(/_/g, ' & ').replace(/\b\w/g, c => c.toUpperCase())} plan
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
-          </div>
+
+              {/* Details rows */}
+              {member.membership_expiry && (
+                <div className="cp-membership-row">
+                  <span className="cp-membership-label">Valid until</span>
+                  <span className="cp-membership-value">
+                    {new Date(member.membership_expiry).toLocaleDateString('en-ZA', {
+                      day: 'numeric', month: 'long', year: 'numeric',
+                    })}
+                  </span>
+                </div>
+              )}
+
+              {/* Upgrade / Add Services button */}
+              <a
+                href="https://wa.me/27634421690?text=Hi%20Maddog!%20I%27d%20like%20to%20upgrade%20or%20add%20services%20to%20my%20membership."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cp-membership-upgrade-btn"
+                aria-label="WhatsApp Maddog to upgrade or add services"
+              >
+                💬 Upgrade or Add Services
+              </a>
+            </div>
+          ) : (
+            /* No membership found */
+            <div className="cp-membership-card">
+              <div className="cp-membership-banner guest">
+                <span className="cp-membership-banner-icon">⊘</span>
+                <div>
+                  <div className="cp-membership-banner-title">No Membership Found</div>
+                  <div className="cp-membership-banner-sub">Get started with a trial class or join today</div>
+                </div>
+              </div>
+              <a
+                href="https://wa.me/27634421690?text=Hi%20Maddog!%20I%27d%20like%20to%20find%20out%20more%20about%20joining%20or%20getting%20a%20trial%20class."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cp-membership-upgrade-btn"
+                aria-label="WhatsApp Maddog to enquire about membership"
+              >
+                💬 Enquire to Join
+              </a>
+            </div>
+          )}
         </div>
       )}
     </div>

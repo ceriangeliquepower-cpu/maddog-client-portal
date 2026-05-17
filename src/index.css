@@ -945,3 +945,194 @@ textarea { resize: vertical; }
   -webkit-tap-highlight-color: transparent;
   text-transform: uppercase;
 }
+
+/* ── Membership banner (Dashboard & BookSession) ─────────────── */
+.cp-membership-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  margin-bottom: 14px;
+}
+.cp-membership-banner.active {
+  background: rgba(45,158,95,.10);
+  border: 1px solid rgba(45,158,95,.25);
+}
+.cp-membership-banner.trial {
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-mid);
+}
+.cp-membership-banner.guest {
+  background: rgba(217,64,64,.07);
+  border: 1px solid rgba(217,64,64,.18);
+}
+.cp-membership-banner-icon {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.cp-membership-banner.active  .cp-membership-banner-icon { color: var(--green); }
+.cp-membership-banner.trial   .cp-membership-banner-icon { color: var(--gold);  }
+.cp-membership-banner.guest   .cp-membership-banner-icon { color: var(--red);   }
+.cp-membership-banner-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.2;
+}
+.cp-membership-banner-sub {
+  font-size: 12px;
+  color: var(--text-2);
+  margin-top: 2px;
+  text-transform: capitalize;
+}
+
+.cp-membership-upgrade-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  background: var(--gold);
+  color: #0D0D0D;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: .04em;
+  padding: 11px 16px;
+  border-radius: var(--r-sm);
+  text-decoration: none;
+  margin-top: 4px;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity .15s;
+}
+.cp-membership-upgrade-btn:hover { opacity: .88; color: #0D0D0D; }
+
+/* ── BookSession — trial card ────────────────────────────────── */
+.cp-trial-card {
+  background: var(--gold-dim);
+  border: 1.5px solid var(--gold-mid);
+  border-radius: var(--r-md);
+  padding: 16px;
+  cursor: pointer;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+  transition: box-shadow .15s, border-color .15s;
+}
+.cp-trial-card:hover,
+.cp-trial-card:focus-within {
+  box-shadow: 0 0 0 3px var(--gold-dim);
+  border-color: var(--gold);
+}
+.cp-trial-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  background: var(--gold-mid);
+  border-radius: 20px;
+  padding: 3px 10px;
+  margin-bottom: 8px;
+}
+
+/* ── BookSession — locked / members-only service ─────────────── */
+.cp-service-locked {
+  opacity: .55;
+  cursor: not-allowed;
+  position: relative;
+}
+.cp-service-locked:hover { box-shadow: none; border-color: var(--border); }
+.cp-locked-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  border-radius: 20px;
+  padding: 3px 9px;
+  margin-top: 6px;
+}
+
+/* ── Profile — attendance / check-in history ─────────────────── */
+.cp-checkin-summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+}
+.cp-checkin-count {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.cp-checkin-count-value {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 40px;
+  line-height: 1;
+  color: var(--gold);
+  letter-spacing: .04em;
+}
+.cp-checkin-count-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+
+.cp-checkin-history {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.cp-checkin-history-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.cp-checkin-history-row:last-child { border-bottom: none; }
+.cp-checkin-history-icon {
+  font-size: 13px;
+  color: var(--green);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.cp-checkin-history-date {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text);
+}
+.cp-checkin-history-time {
+  font-size: 12px;
+  color: var(--text-3);
+}
+.cp-checkin-empty {
+  font-size: 13px;
+  color: var(--text-2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 16px;
+  text-align: center;
+  line-height: 1.6;
+}
